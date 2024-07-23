@@ -1,5 +1,0 @@
-﻿  Main.cpp
-D:\Codes\LearnDX12\2. Matrix\2. Matrix\Main.cpp(125,8): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-D:\Codes\LearnDX12\2. Matrix\2. Matrix\Main.cpp(143,24): warning C4244: 'return': conversion from 'double' to 'int', possible loss of data
-D:\Codes\LearnDX12\2. Matrix\2. Matrix\Main.cpp(147,8): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  2. Matrix.vcxproj -> D:\Codes\LearnDX12\2. Matrix\x64\Debug\2. Matrix.exe

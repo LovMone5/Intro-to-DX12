@@ -14,11 +14,7 @@ public:
 	void Stop();
 	void Tick();
 	void Start();
-
-	LONGLONG FPS();
 private:
-	void CalculateFrame();
-
 	DOUBLE mSecondsPerCount;
 
 	LONGLONG mBaseTime;
@@ -27,10 +23,6 @@ private:
 	LONGLONG mPrevTime;
 	LONGLONG mCurrTime;
 	LONGLONG mDeltaTime;
-	
-	LONGLONG mFrameCount;
-	LONGLONG mFPS;
-	DOUBLE mElapsedTime;
 
 	BOOL mPaused;
 };

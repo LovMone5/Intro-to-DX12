@@ -12,10 +12,6 @@ bool TestApp::Initialize()
 
 void TestApp::Update(const GameTimer& gt)
 {
-	auto fpsStr = std::to_wstring(mTimer.FPS());
-	
-	auto windowText = mWndCaptain + L"      fps: " + fpsStr;
-	SetWindowText(mHandle, windowText.c_str());
 }
 
 void TestApp::Draw(const GameTimer& gt)

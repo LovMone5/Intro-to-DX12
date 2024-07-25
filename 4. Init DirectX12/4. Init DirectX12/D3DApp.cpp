@@ -105,6 +105,7 @@ int D3DApp::Run()
 		else {
 			// do game logic
 			mTimer.Tick();
+			CalculateFrame();
 			if (!mAppPaused) {
 				Update(mTimer);
 				Draw(mTimer);
@@ -284,6 +285,23 @@ void D3DApp::FlushCommandQueue()
 		ThrowIfFailed(mFence->SetEventOnCompletion(mCurrentFence, eventHandle));
 		WaitForSingleObject(eventHandle, INFINITE);
 		CloseHandle(eventHandle);
+	}
+}
+
+void D3DApp::CalculateFrame()
+{
+	mFrameCount++;
+
+	if (mTimer.TotolTime() - mElapsedTime >= 1.0f) {
+		double mspf = 1000.0f / mFrameCount;
+
+		auto fpsStr = std::to_wstring(mFrameCount);
+
+		auto windowText = mWndCaptain + L"      fps: " + fpsStr;
+		SetWindowText(mHandle, windowText.c_str());
+
+		mFrameCount = 0;
+		mElapsedTime += 1.0f;
 	}
 }
 

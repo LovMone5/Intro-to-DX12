@@ -30,6 +30,7 @@ protected:
 	void CreateSwapChain();
 	void CreateRtvAndDsvDescriptorHeaps();
 	void FlushCommandQueue();
+	void CalculateFrame();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView();
@@ -43,6 +44,8 @@ protected:
 
 	GameTimer mTimer;
 	bool mAppPaused = false;
+	DOUBLE mElapsedTime = 1.0f;
+	LONGLONG mFrameCount = 0;
 
 	Microsoft::WRL::ComPtr<IDXGIFactory4> mDXGIFactory;
 	Microsoft::WRL::ComPtr<ID3D12Device> mD3DDevice;

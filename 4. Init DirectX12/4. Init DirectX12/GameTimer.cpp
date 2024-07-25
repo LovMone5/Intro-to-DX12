@@ -28,9 +28,6 @@ void GameTimer::Reset()
 	mStopTime = 0;
 	mPausedTime = 0;
 	mPaused = FALSE;
-
-	mFrameCount = 0;
-	mElapsedTime = 0.0f;
 }
 
 void GameTimer::Stop()
@@ -57,8 +54,6 @@ void GameTimer::Tick()
 	mPrevTime = mCurrTime;
 
 	mDeltaTime = max(mDeltaTime, 0);
-
-	CalculateFrame();
 }
 
 void GameTimer::Start()
@@ -71,23 +66,5 @@ void GameTimer::Start()
 		mStopTime = 0;
 		mPrevTime = curentTime;
 		mPaused = FALSE;
-	}
-}
-
-LONGLONG GameTimer::FPS()
-{
-	return mFPS;
-}
-
-void GameTimer::CalculateFrame()
-{
-	mFrameCount++;
-
-	if (TotolTime() - mElapsedTime >= 1.0f) {
-		mFPS = mFrameCount;
-		double mspf = 1000.0f / mFPS;
-
-		mFrameCount = 0;
-		mElapsedTime += 1.0f;
 	}
 }

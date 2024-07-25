@@ -5,7 +5,7 @@ using Microsoft::WRL::ComPtr;
 
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	return D3DApp::MsgProc(hwnd, msg, wParam, lParam);
+	return D3DApp::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 }
 
 D3DApp* D3DApp::mApp = nullptr;
@@ -124,15 +124,88 @@ float D3DApp::AspectRatio()
 LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg) {
+	case WM_ACTIVATE:
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			mAppPaused = true;
+			mTimer.Stop();
+		}
+		else
+		{
+			mAppPaused = false;
+			mTimer.Start();
+		}
+		return 0;
+	case WM_SIZE:
+		mClientWidth = LOWORD(lParam);
+		mClientHeight = HIWORD(lParam);
+		if (mD3DDevice)
+		{
+			if (wParam == SIZE_MINIMIZED)
+			{
+				mAppPaused = true;
+				mMinimized = true;
+				mMaximized = false;
+			}
+			else if (wParam == SIZE_MAXIMIZED)
+			{
+				mAppPaused = false;
+				mMinimized = false;
+				mMaximized = true;
+				OnResize();
+			}
+			else if (wParam == SIZE_RESTORED)
+			{
+				if (mMinimized)
+				{
+					mAppPaused = false;
+					mMinimized = false;
+					OnResize();
+				}
+				else if (mMaximized)
+				{
+					mAppPaused = false;
+					mMaximized = false;
+					OnResize();
+				}
+				else if (mResizing)
+				{
+
+				}
+				else 
+				{
+					OnResize();
+				}
+			}
+		}
+		return 0;
+	case WM_ENTERSIZEMOVE:
+		mAppPaused = true;
+		mResizing = true;
+		mTimer.Stop();
+		return 0;
+	case WM_EXITSIZEMOVE:
+		mAppPaused = false;
+		mResizing = false;
+		mTimer.Start();
+		OnResize();
+		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_EXITSIZEMOVE:
-		GetApp()->OnResize();
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
-	case WM_SYSKEYUP:
-		if ((wParam == VK_RETURN) && (HIWORD(lParam) & KF_ALTDOWN))
-			return 0;
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);

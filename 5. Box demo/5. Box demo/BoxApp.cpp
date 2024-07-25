@@ -117,6 +117,45 @@ void BoxApp::OnResize()
 	XMStoreFloat4x4(&mProj, P);
 }
 
+void BoxApp::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	mLastMousePos.x = x;
+	mLastMousePos.y = y;
+
+	SetCapture(mHandle);
+}
+
+void BoxApp::OnMouseUp(WPARAM btnState, int x, int y)
+{
+	ReleaseCapture();
+}
+
+void BoxApp::OnMouseMove(WPARAM btnState, int x, int y)
+{
+	if ((btnState & MK_LBUTTON) != 0)
+	{
+		// make each pixel correspond to a quarter of a degree
+		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
+		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
+
+		// update angles based on input to orbit camera around box
+		mTheta += dx;
+		mPhi += dy;
+	}
+	else if ((btnState & MK_RBUTTON) != 0)
+	{
+		// make each pixel correspond to 0.005 unit in the scene
+		float dx = 0.005f * static_cast<float>(x - mLastMousePos.x);
+		float dy = 0.005f * static_cast<float>(y - mLastMousePos.y);
+
+		// update the camera radius based on input
+		mRadius += dx - dy;
+	}
+
+	mLastMousePos.x = x;
+	mLastMousePos.y = y;
+}
+
 void BoxApp::BuildDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC desc;

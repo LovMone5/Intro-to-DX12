@@ -6,6 +6,7 @@
 #include <dxgi1_6.h>
 #include <DirectXColors.h>
 #include <d3dcompiler.h>
+#include <windowsx.h>
 #include "d3dx12.h"
 #include "DxException.h"
 #include "GameTimer.h"
@@ -25,11 +26,14 @@ public:
 	
 	float AspectRatio();
 
-	static LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	static D3DApp* GetApp();
 
 protected:
 	virtual void OnResize();
+	virtual void OnMouseDown(WPARAM btnState, int x, int y) = 0;
+	virtual void OnMouseUp(WPARAM btnState, int x, int y) = 0;
+	virtual void OnMouseMove(WPARAM btnState, int x, int y) = 0;
 
 	void CreateCommandObjects();
 	void CreateSwapChain();
@@ -49,6 +53,9 @@ protected:
 
 	GameTimer mTimer;
 	bool mAppPaused = false;
+	bool mMinimized = false;
+	bool mMaximized = false;
+	bool mResizing = false;
 	DOUBLE mElapsedTime = 1.0f;
 	LONGLONG mFrameCount = 0;
 
@@ -77,4 +84,6 @@ protected:
 
 	D3D12_VIEWPORT mViewport;
 	RECT mScissorRect;
+
+	POINT mLastMousePos;
 };

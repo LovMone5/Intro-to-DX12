@@ -9,9 +9,13 @@ struct ObjectConstant {
 	DirectX::XMFLOAT4X4 WorldViewProj;
 };
 
-struct Vertex
+struct VPosData
 {
 	DirectX::XMFLOAT3 Pos;
+};
+
+struct VColorData
+{
 	DirectX::XMFLOAT4 Color;
 };
 
@@ -33,12 +37,13 @@ private:
 	void BuildRootSignature();
 	void BuildConstantBuffers();
 	void BuildShadersAndInputLayout();
-	void BuildBoxGeometry();
+	void BuildBoxAndPyramidGeometry();
 	void BuildPSO();
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvHeap;
-	std::unique_ptr<UploadBuffer<ObjectConstant>> mObjectCB;
+	std::unique_ptr<UploadBuffer<ObjectConstant>> mBoxCB;
+	std::unique_ptr<UploadBuffer<ObjectConstant>> mPyramidCB;
 	std::unique_ptr<d3dUtil::MeshGeometry> mBoxGeo;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO;
 

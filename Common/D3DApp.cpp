@@ -370,7 +370,7 @@ void D3DApp::CalculateFrame()
 {
 	mFrameCount++;
 
-	if (mTimer.TotolTime() - mElapsedTime >= 1.0f) {
+	if (mTimer.TotalTime() - mElapsedTime >= 1.0f) {
 		double mspf = 1000.0f / mFrameCount;
 
 		auto fpsStr = std::to_wstring(mFrameCount);

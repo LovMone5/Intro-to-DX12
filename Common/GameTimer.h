@@ -7,7 +7,7 @@ public:
 	GameTimer();
 	GameTimer(const GameTimer& rhs) = delete;
 
-	DOUBLE TotolTime() const;
+	DOUBLE TotalTime() const;
 	DOUBLE DeltaTime() const;
 
 	void Reset();

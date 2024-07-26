@@ -2,11 +2,14 @@
 #include <memory>
 #include <vector>
 #include <array>
+#include <DirectXPackedVector.h>
 #include "../../Common/D3DApp.h"
 #include "../../Common/UploadBuffer.h"
 
 struct ObjectConstant {
 	DirectX::XMFLOAT4X4 WorldViewProj;
+	DirectX::XMFLOAT4 PulseColor;
+	FLOAT TotalTime;
 };
 
 struct VPosData
@@ -16,7 +19,7 @@ struct VPosData
 
 struct VColorData
 {
-	DirectX::XMFLOAT4 Color;
+	DirectX::PackedVector::XMCOLOR Color;
 };
 
 class BoxApp: public D3DApp {

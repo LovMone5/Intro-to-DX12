@@ -7,7 +7,7 @@ GameTimer::GameTimer()
 	mSecondsPerCount = 1.0 / countsPerSecond;
 }
 
-DOUBLE GameTimer::TotolTime() const
+DOUBLE GameTimer::TotalTime() const
 {
 	if (mPaused) return (mStopTime - mBaseTime - mPausedTime) * mSecondsPerCount;
 	else return (mCurrTime - mBaseTime - mPausedTime) * mSecondsPerCount;

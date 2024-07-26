@@ -48,12 +48,20 @@ void BoxApp::Update(const GameTimer& gt)
 
 	ObjectConstant objConstants;
 	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+	objConstants.TotalTime = gt.TotalTime();
+	objConstants.PulseColor = XMFLOAT4(Colors::Gold);
 	mBoxCB->CopyData(0, objConstants);
 
 	world = XMMatrixTranslation(0.0f, 1.2f, 0.0f);
 	worldViewProj = world * view * proj;
 	XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
 	mPyramidCB->CopyData(0, objConstants);
+
+	// aim the viewport at the left half
+	// mViewport.TopLeftX = -mClientWidth / 4.0f;
+
+	// mScissorRect = { mClientWidth / 4, mClientHeight / 4, mClientWidth / 2, mClientHeight / 2 };
+
 }
 
 void BoxApp::Draw(const GameTimer& gt)
@@ -242,7 +250,7 @@ void BoxApp::BuildShadersAndInputLayout()
 	mInputLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
 }
 
@@ -267,20 +275,20 @@ void BoxApp::BuildBoxAndPyramidGeometry()
 		VPosData({ XMFLOAT3(+1.0f, +0.0f, -1.0f) }),
 	};
 	std::array<VColorData, 8 + 5> verticesColor = {
-		VColorData({ XMFLOAT4(Colors::White) }),
-		VColorData({ XMFLOAT4(Colors::Black) }),
-		VColorData({ XMFLOAT4(Colors::Red) }),
-		VColorData({ XMFLOAT4(Colors::Green) }),
-		VColorData({ XMFLOAT4(Colors::Blue) }),
-		VColorData({ XMFLOAT4(Colors::Yellow) }),
-		VColorData({ XMFLOAT4(Colors::Cyan) }),
-		VColorData({ XMFLOAT4(Colors::Magenta) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::White) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Black) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Red) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Green) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Blue) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Yellow) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Cyan) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Magenta) }),
 
-		VColorData({ XMFLOAT4(Colors::Red) }),
-		VColorData({ XMFLOAT4(Colors::Green) }),
-		VColorData({ XMFLOAT4(Colors::Green) }),
-		VColorData({ XMFLOAT4(Colors::Green) }),
-		VColorData({ XMFLOAT4(Colors::Green) })
+		VColorData({ PackedVector::XMCOLOR(Colors::Red) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Green) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Green) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Green) }),
+		VColorData({ PackedVector::XMCOLOR(Colors::Green) })
 	};
 	std::array<std::uint16_t, 36 + 6 * 3> indices = {
 		// -------------box-------------
@@ -369,12 +377,17 @@ void BoxApp::BuildBoxAndPyramidGeometry()
 
 void BoxApp::BuildPSO()
 {
+	auto rs = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	rs.FillMode = D3D12_FILL_MODE_SOLID;
+	// rs.CullMode = D3D12_CULL_MODE_NONE;
+	// rs.CullMode = D3D12_CULL_MODE_FRONT;
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
 	desc.pRootSignature = mRootSignature.Get();
 	desc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
 	desc.VS = { mVertexShader->GetBufferPointer(), mVertexShader->GetBufferSize() };
 	desc.PS = { mPixelShader->GetBufferPointer(), mPixelShader->GetBufferSize() };
-	desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	desc.RasterizerState = rs;
 	desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	desc.SampleMask = UINT_MAX;

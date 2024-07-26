@@ -128,19 +128,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Common\D3DApp.h" />
+    <ClInclude Include="..\..\Common\D3DUtils.h" />
+    <ClInclude Include="..\..\Common\d3dx12.h" />
+    <ClInclude Include="..\..\Common\DxException.h" />
+    <ClInclude Include="..\..\Common\GameTimer.h" />
+    <ClInclude Include="..\..\Common\UploadBuffer.h" />
     <ClInclude Include="BoxApp.h" />
-    <ClInclude Include="D3DApp.h" />
-    <ClInclude Include="D3DUtils.h" />
-    <ClInclude Include="d3dx12.h" />
-    <ClInclude Include="DxException.h" />
-    <ClInclude Include="GameTimer.h" />
-    <ClInclude Include="UploadBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Common\D3DApp.cpp" />
+    <ClCompile Include="..\..\Common\DxException.cpp" />
+    <ClCompile Include="..\..\Common\GameTimer.cpp" />
     <ClCompile Include="BoxApp.cpp" />
-    <ClCompile Include="D3DApp.cpp" />
-    <ClCompile Include="DxException.cpp" />
-    <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>

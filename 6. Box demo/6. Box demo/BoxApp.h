@@ -2,8 +2,8 @@
 #include <memory>
 #include <vector>
 #include <array>
-#include "D3DApp.h"
-#include "UploadBuffer.h"
+#include "../../Common/D3DApp.h"
+#include "../../Common/UploadBuffer.h"
 
 struct ObjectConstant {
 	DirectX::XMFLOAT4X4 WorldViewProj;

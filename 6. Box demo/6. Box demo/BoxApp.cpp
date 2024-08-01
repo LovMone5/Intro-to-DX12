@@ -97,9 +97,9 @@ void BoxApp::Draw(const GameTimer& gt)
 
 	auto vbvp = mBoxGeo->VertexPosBufferView();
 	auto vbvc = mBoxGeo->VertexColorBufferView();
+	D3D12_VERTEX_BUFFER_VIEW vbvs[] = { vbvp, vbvc };
+	mCommandList->IASetVertexBuffers(0, 2, vbvs);
 	auto ibv = mBoxGeo->IndexBufferView();
-	mCommandList->IASetVertexBuffers(0, 1, &vbvp);
-	mCommandList->IASetVertexBuffers(1, 1, &vbvc);
 	mCommandList->IASetIndexBuffer(&ibv);
 	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);

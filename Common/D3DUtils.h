@@ -23,42 +23,28 @@ namespace d3dUtil
 	{
 		std::string Name;
 
-		Microsoft::WRL::ComPtr<ID3DBlob> VertexPosBufferCPU;
-		Microsoft::WRL::ComPtr<ID3DBlob> VertexColorBufferCPU;
+		Microsoft::WRL::ComPtr<ID3DBlob> VertexBufferCPU;
 		Microsoft::WRL::ComPtr<ID3DBlob> IndexBufferCPU;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> VertexPosBufferGPU;
-		Microsoft::WRL::ComPtr<ID3D12Resource> VertexColorBufferGPU;
+		Microsoft::WRL::ComPtr<ID3D12Resource> VertexBufferGPU;
 		Microsoft::WRL::ComPtr<ID3D12Resource> IndexBufferGPU;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> VertexPosUploadBuffer;
-		Microsoft::WRL::ComPtr<ID3D12Resource> VertexColorUploadBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource> VertexUploadBuffer;
 		Microsoft::WRL::ComPtr<ID3D12Resource> IndexUploadBuffer;
 
-		UINT VertexBufferSizePos;
-		UINT VertexBufferSizeColor;
-		UINT VertexStridePos;
-		UINT VertexStrideColor;
+		UINT VertexBufferSize;
+		UINT VertexStride;
 		DXGI_FORMAT IndexFormat;
 		UINT IndexBufferSize;
 
 		std::unordered_map<std::string, SubmeshGeometry> DrawArgs;
 
-		D3D12_VERTEX_BUFFER_VIEW VertexPosBufferView()
+		D3D12_VERTEX_BUFFER_VIEW VertexBufferView()
 		{
 			D3D12_VERTEX_BUFFER_VIEW vbv;
-			vbv.BufferLocation = VertexPosBufferGPU->GetGPUVirtualAddress();
-			vbv.SizeInBytes = VertexBufferSizePos;
-			vbv.StrideInBytes = VertexStridePos;
-
-			return vbv;
-		}
-		D3D12_VERTEX_BUFFER_VIEW VertexColorBufferView()
-		{
-			D3D12_VERTEX_BUFFER_VIEW vbv;
-			vbv.BufferLocation = VertexColorBufferGPU->GetGPUVirtualAddress();
-			vbv.SizeInBytes = VertexBufferSizeColor;
-			vbv.StrideInBytes = VertexStrideColor;
+			vbv.BufferLocation = VertexBufferGPU->GetGPUVirtualAddress();
+			vbv.SizeInBytes = VertexBufferSize;
+			vbv.StrideInBytes = VertexStride;
 
 			return vbv;
 		}

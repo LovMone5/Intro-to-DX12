@@ -220,7 +220,7 @@ void D3DApp::OnResize()
 {
 	FlushCommandQueue();
 
-	ThrowIfFailed(mCommandList->Reset(mCommandAllocator.Get(), nullptr));
+	ThrowIfFailed(mCommandList->Reset(mMainCmdAllocator.Get(), nullptr));
 	// realase the previous resources we will be creating
 	for (int i = 0; i < mSwapChainBufferCount; i++)
 		mSwapChainBuffer[i].Reset();
@@ -300,11 +300,11 @@ void D3DApp::CreateCommandObjects()
 	desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	ThrowIfFailed(mD3DDevice->CreateCommandQueue(&desc, IID_PPV_ARGS(&mCommandQueue)));
 
-	ThrowIfFailed(mD3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocator)));
+	ThrowIfFailed(mD3DDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mMainCmdAllocator)));
 	ThrowIfFailed(mD3DDevice->CreateCommandList(
 		0,
 		D3D12_COMMAND_LIST_TYPE_DIRECT,
-		mCommandAllocator.Get(),
+		mMainCmdAllocator.Get(),
 		nullptr,
 		IID_PPV_ARGS(&mCommandList)));
 

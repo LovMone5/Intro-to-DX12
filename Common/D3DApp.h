@@ -70,7 +70,7 @@ protected:
 	UINT mCurrentBackBufferIndex = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mMainCmdAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;

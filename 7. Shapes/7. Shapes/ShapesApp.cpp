@@ -184,22 +184,22 @@ void ShapesApp::UpdateCamera(const GameTimer& gt)
 
 void ShapesApp::UpdateObjectCBs(const GameTimer& gt)
 {
-	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-	for (auto& e : mAllRitems)
-	{
-		if (e->NumFramesDirty > 0)
-		{
-			XMMATRIX world = XMLoadFloat4x4(&e->World);
+	//auto currObjectCB = mCurrFrameResource->ObjectCB.get();
+	//for (auto& e : mAllRitems)
+	//{
+	//	if (e->NumFramesDirty > 0)
+	//	{
+	//		XMMATRIX world = XMLoadFloat4x4(&e->World);
 
-			ObjectConstant objConstants;
-			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+	//		ObjectConstant objConstants;
+	//		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 
-			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+	//		currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
-			// next FrameResource need to be updated too
-			e->NumFramesDirty--;
-		}
-	}
+	//		// next FrameResource need to be updated too
+	//		e->NumFramesDirty--;
+	//	}
+	//}
 }
 
 void ShapesApp::UpdateMainPassCB(const GameTimer& gt)
@@ -235,8 +235,8 @@ void ShapesApp::UpdateMainPassCB(const GameTimer& gt)
 
 void ShapesApp::BuildDescriptorHeaps()
 {
-	UINT numDescriptors = (mOpaqueRitems.size() + 1) * gFrameResourcesCount;
-	mPassCbvOffset = mOpaqueRitems.size() * gFrameResourcesCount;
+	UINT numDescriptors = gFrameResourcesCount;
+	mPassCbvOffset = 0;
 
 	D3D12_DESCRIPTOR_HEAP_DESC desc;
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -250,10 +250,9 @@ void ShapesApp::BuildDescriptorHeaps()
 void ShapesApp::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER slotParameters[2];
-	CD3DX12_DESCRIPTOR_RANGE table1, table2;
-	table1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE table2;
 	table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-	slotParameters[0].InitAsDescriptorTable(1, &table1);
+	slotParameters[0].InitAsConstants(16, 0);
 	slotParameters[1].InitAsDescriptorTable(1, &table2);
 
 	D3D12_ROOT_SIGNATURE_DESC desc;
@@ -505,25 +504,6 @@ void ShapesApp::BuildFrameResource()
 
 void ShapesApp::BuildConstantBufferViews()
 {
-	UINT objCBSize = CalcConstantBufferSize(sizeof ObjectConstant);
-	int objCount = mOpaqueRitems.size();
-	for (int frameIndex = 0; frameIndex < gFrameResourcesCount; frameIndex++) {
-		auto objectCB = mFrameResources[frameIndex]->ObjectCB->Resource();
-		auto cbAddress = objectCB->GetGPUVirtualAddress();
-		for (int i = 0; i < objCount; i++) {
-			D3D12_CONSTANT_BUFFER_VIEW_DESC desc;
-			desc.BufferLocation = cbAddress;
-			desc.SizeInBytes = objCBSize;
-
-			int heapIndex = frameIndex * objCount + i;
-			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
-			handle.Offset(heapIndex, mCbvUavDescriptorSize);
-
-			mD3DDevice->CreateConstantBufferView(&desc, handle);
-			cbAddress += objCBSize;
-		}
-	}
-
 	UINT passCBSize = CalcConstantBufferSize(sizeof PassConstant);
 	for (int frameIndex = 0; frameIndex < gFrameResourcesCount; frameIndex++) {
 		auto passCB = mFrameResources[frameIndex]->PassCB->Resource();
@@ -544,15 +524,13 @@ void ShapesApp::BuildConstantBufferViews()
 void ShapesApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 {
 	for (const auto& e : ritems) {
-		auto handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-		handle.Offset(mCurrFrameResourceIndex * mOpaqueRitems.size() + e->ObjCBIndex, mCbvUavDescriptorSize);
-
 		auto vbv = e->Geo->VertexBufferView();
 		auto ibv = e->Geo->IndexBufferView();
 		mCommandList->IASetVertexBuffers(0, 1, &vbv);
 		mCommandList->IASetIndexBuffer(&ibv);
 		mCommandList->IASetPrimitiveTopology(e->PrimitiveType);
-		mCommandList->SetGraphicsRootDescriptorTable(0, handle);
+		XMMATRIX world = XMMatrixTranspose(XMLoadFloat4x4(&e->World));
+		mCommandList->SetGraphicsRoot32BitConstants(0, 16, &world, 0);
 		mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
 	}
 }

@@ -124,7 +124,7 @@ namespace d3dUtil
 
 		auto hr = D3DCompileFromFile(
 			file.c_str(), 
-			nullptr, nullptr, 
+			nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, 
 			entry.c_str(), target.c_str(),
 			compileFlags, 0, &blob, &error);
 

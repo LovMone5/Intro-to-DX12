@@ -39,7 +39,27 @@ float3 BlinnPhong(float3 strength, float3 light, float3 normal, float3 toEye, Ma
 
     specular = specular / (specular + 1.0f);
     
-    return strength * (diffuse + specular);
+    // kd
+    float kd = max(dot(normal, light), 0.0f);
+    if (kd <= 0.0f)
+        kd = 0.4f;
+    else if (kd <= 0.5f)
+        kd = 0.6f;
+    else if (kd <= 1.0f)
+        kd = 1.0f;
+    
+    float ks;
+    if (dot(normal, light) > 0.0f) ks = pow(max(dot(normal, h), 0.0f), m);
+    else ks = 0.0f;
+    if (ks <= 0.0f)
+        ks = 0.0f;
+    else if (ks <= 0.8f)
+        ks = 0.5f;
+    else if (ks <= 1.0f)
+        ks = 0.8f;
+    
+    
+    return strength * (diffuse * kd + specular * ks);
 }
 
 float3 ComputeDirectionalLight(Light ligth, float3 normal, float3 toEye, Material mat)

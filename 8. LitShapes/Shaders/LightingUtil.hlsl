@@ -37,7 +37,7 @@ float3 BlinnPhong(float3 strength, float3 light, float3 normal, float3 toEye, Ma
     const float m = mat.Shininess * 256.0f;
     float3 specular = SchlickFresnel(light, h, mat.FresnelR0) * (m + 8.0f) * pow(max(dot(normal, h), 0.0f), m) / 8.0f;
 
-    // specular = specular / (specular + 1.0f);
+    specular = specular / (specular + 1.0f);
     
     return strength * (diffuse + specular);
 }

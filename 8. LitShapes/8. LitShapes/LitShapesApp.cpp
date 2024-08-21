@@ -33,8 +33,8 @@ bool LitShapesApp::Initialize()
 	BuildMaterials();
 	BuildRenderItems();
 	BuildFrameResource();
-	BuildDescriptorHeaps();
-	BuildConstantBufferViews();
+	// BuildDescriptorHeaps();
+	// BuildConstantBufferViews();
 	BuildShadersAndInputLayout();
 	BuildPSO();
 
@@ -94,13 +94,10 @@ void LitShapesApp::Draw(const GameTimer& gt)
 	mCommandList->OMSetRenderTargets(1, &cbv, true, &dsv);
 
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
-	ID3D12DescriptorHeap* descHeaps[] = { mCbvHeap.Get() };
-	mCommandList->SetDescriptorHeaps(_countof(descHeaps), descHeaps);
 
-	// pass cbv table
-	auto handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-	handle.Offset(mPassCbvOffset + mCurrFrameResourceIndex, mCbvUavDescriptorSize);
-	mCommandList->SetGraphicsRootDescriptorTable(1, handle);
+	auto passCBSize = d3dUtil::CalcConstantBufferSize(sizeof PassConstant);
+	auto address = mCurrFrameResource->PassCB->Resource()->GetGPUVirtualAddress();
+	mCommandList->SetGraphicsRootConstantBufferView(1, address);
 
 	DrawRenderItems(mOpaqueRitems);
 
@@ -189,22 +186,22 @@ void LitShapesApp::UpdateCamera(const GameTimer& gt)
 
 void LitShapesApp::UpdateObjectCBs(const GameTimer& gt)
 {
-	//auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-	//for (auto& e : mAllRitems)
-	//{
-	//	if (e->NumFramesDirty > 0)
-	//	{
-	//		XMMATRIX world = XMLoadFloat4x4(&e->World);
+	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
+	for (auto& e : mAllRitems)
+	{
+		if (e->NumFramesDirty > 0)
+		{
+			XMMATRIX world = XMLoadFloat4x4(&e->World);
 
-	//		ObjectConstant objConstants;
-	//		XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			ObjectConstant objConstants;
+			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 
-	//		currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
-	//		// next FrameResource need to be updated too
-	//		e->NumFramesDirty--;
-	//	}
-	//}
+			// next FrameResource need to be updated too
+			e->NumFramesDirty--;
+		}
+	}
 }
 
 void LitShapesApp::UpdateMainPassCB(const GameTimer& gt)
@@ -279,11 +276,9 @@ void LitShapesApp::BuildDescriptorHeaps()
 void LitShapesApp::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER slotParameters[3];
-	CD3DX12_DESCRIPTOR_RANGE table2;
-	table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-	slotParameters[0].InitAsConstants(16, 0);
-	slotParameters[1].InitAsDescriptorTable(1, &table2);
-	slotParameters[2].InitAsConstantBufferView(2);
+	slotParameters[0].InitAsConstantBufferView(0);
+	slotParameters[1].InitAsConstantBufferView(2);
+	slotParameters[2].InitAsConstantBufferView(1);
 
 	D3D12_ROOT_SIGNATURE_DESC desc;
 	desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -561,6 +556,7 @@ void LitShapesApp::BuildConstantBufferViews()
 void LitShapesApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 {
 	auto matCBSize = d3dUtil::CalcConstantBufferSize(sizeof MaterialConstant);
+	auto objCBSize = d3dUtil::CalcConstantBufferSize(sizeof ObjectConstant);
 
 	for (const auto& e : ritems) {
 		auto vbv = e->Geo->VertexBufferView();
@@ -569,13 +565,14 @@ void LitShapesApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 		mCommandList->IASetIndexBuffer(&ibv);
 		mCommandList->IASetPrimitiveTopology(e->PrimitiveType);
 
-		XMMATRIX world = XMMatrixTranspose(XMLoadFloat4x4(&e->World));
-		mCommandList->SetGraphicsRoot32BitConstants(0, 16, &world, 0);
+		auto objAdress = mCurrFrameResource->ObjectCB->Resource()->GetGPUVirtualAddress();
+		objAdress += e->ObjCBIndex * objCBSize;
+		mCommandList->SetGraphicsRootConstantBufferView(0, objAdress);
 
-		auto address = mCurrFrameResource->MaterialCB->Resource()->GetGPUVirtualAddress();
-		address += e->Mat->MatCBIndex * matCBSize;
+		auto matAddress = mCurrFrameResource->MaterialCB->Resource()->GetGPUVirtualAddress();
+		matAddress += e->Mat->MatCBIndex * matCBSize;
 
-		mCommandList->SetGraphicsRootConstantBufferView(2, address);
+		mCommandList->SetGraphicsRootConstantBufferView(2, matAddress);
 
 		mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
 	}

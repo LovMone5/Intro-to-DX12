@@ -17,7 +17,7 @@ cbuffer cbPerObject : register(b0)
     float4x4 gWorld;
 };
 
-cbuffer cbPass : register(b1)
+cbuffer cbPass : register(b2)
 {
     float4x4 gView;
     float4x4 gInvView;
@@ -38,7 +38,7 @@ cbuffer cbPass : register(b1)
     Light gLights[MaxLights];
 };
 
-cbuffer cbMaterial : register(b2)
+cbuffer cbMaterial : register(b1)
 {
     float4 gDiffuseAlbedo;
     float3 gFresnelR0;
@@ -81,9 +81,8 @@ float4 PS(VertexOut pin) : SV_Target
     mat.FresnelR0 = gFresnelR0;
     mat.Shininess = 1.0f - gRoughness;
     
-    float3 toEye = gEyePosW - pin.PosW;
+    float3 toEye = normalize(gEyePosW - pin.PosW);
     
-    float3 ambient = gDiffuseAlbedo * gAmbientLight;
-    return float4(ambient + ComputeLighting(gLights, mat, pin.PosW, pin.NormalW, toEye), gDiffuseAlbedo.a);
+    float4 ambient = gDiffuseAlbedo * gAmbientLight;
+    return float4(ambient.xyz + ComputeLighting(gLights, mat, pin.PosW, pin.NormalW, toEye), gDiffuseAlbedo.a);
 }
-

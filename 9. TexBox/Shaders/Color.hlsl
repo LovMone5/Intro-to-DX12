@@ -15,6 +15,7 @@
 cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
+    float4x4 gTexTransform;
 };
 
 cbuffer cbPass : register(b2)
@@ -43,10 +44,12 @@ cbuffer cbMaterial : register(b1)
     float4 gDiffuseAlbedo;
     float3 gFresnelR0;
     float gRoughness;
+    float4x4 gMatTransform;
 }
 
-Texture2D gDiffuseMap : register(t0);
-SamplerState gsamLinear : register(s0);
+Texture2D gDiffuseMap0 : register(t0);
+Texture2D gDiffuseMap1 : register(t1);
+SamplerState gsamWrap : register(s0);
 
 struct VertexIn
 {
@@ -73,8 +76,12 @@ VertexOut VS(VertexIn vin)
     vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
     
     vout.PosH = mul(posW, gViewProj);
-    vout.TexC = vin.TexC;
     
+    vin.TexC -= float2(0.5f, 0.5f);
+    float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
+    vout.TexC = mul(texC, gMatTransform).xy;
+    vout.TexC += float2(0.5f, 0.5f);
+   
     return vout;
 }
 
@@ -82,7 +89,8 @@ float4 PS(VertexOut pin) : SV_Target
 {
     pin.NormalW = normalize(pin.NormalW);
     
-    float4 diffuseAlbedo = gDiffuseAlbedo * gDiffuseMap.Sample(gsamLinear, pin.TexC);
+    float4 mixTex = gDiffuseMap0.Sample(gsamWrap, pin.TexC) * gDiffuseMap1.Sample(gsamWrap, pin.TexC);
+    float4 diffuseAlbedo = gDiffuseAlbedo * mixTex;
     
     Material mat;
     mat.DiffuseAlbedo = diffuseAlbedo;

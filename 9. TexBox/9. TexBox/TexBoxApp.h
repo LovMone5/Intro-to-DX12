@@ -13,6 +13,7 @@
 
 struct ObjectConstant {
 	DirectX::XMFLOAT4X4 World;
+	DirectX::XMFLOAT4X4 TexTransform;
 };
 
 struct Light
@@ -48,6 +49,7 @@ struct MaterialConstant {
 	DirectX::XMFLOAT4 DiffuseAlbedo = { 0.0f, 0.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 FresnelR0 = { 0.0f, 0.0f, 0.0f };
 	FLOAT Roughness = 0.0f;
+	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
 struct Vertex
@@ -83,6 +85,7 @@ struct Material {
 	DirectX::XMFLOAT4 DiffuseAlbedo = { 0.0f, 0.0f, 0.0f, 0.0f };
 	DirectX::XMFLOAT3 FresnelR0 = { 0.0f, 0.0f, 0.0f };
 	FLOAT Roughness = 0.0f;
+	DirectX::XMFLOAT4X4 MatTransform = MathHelper::Identity4x4();
 };
 
 struct Texture {
@@ -123,6 +126,7 @@ private:
 	void UpdateObjectCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
 	void UpdateMaterialCB(const GameTimer& gt);
+	void UpdateAnimate(const GameTimer& gt);
 
 	void LoadTextures();
 	void BuildDescriptorHeaps();
@@ -138,7 +142,8 @@ private:
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> BuildStaticSamplers();
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> mRootSignature;
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap1;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mSrvHeap2;
 
 	std::unordered_map<std::string, std::unique_ptr<d3dUtil::MeshGeometry>> mGeometries;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> mPSO;

@@ -60,6 +60,8 @@ void TexBoxApp::Update(const GameTimer& gt)
 		CloseHandle(eventHandle);
 	}
 
+	UpdateAnimate(gt);
+
 	UpdateMainPassCB(gt);
 	UpdateObjectCBs(gt);
 	UpdateMaterialCB(gt);
@@ -94,9 +96,6 @@ void TexBoxApp::Draw(const GameTimer& gt)
 	mCommandList->OMSetRenderTargets(1, &cbv, true, &dsv);
 
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
-
-	ID3D12DescriptorHeap* heap[] = { mSrvHeap.Get()};
-	mCommandList->SetDescriptorHeaps(1, heap);
 
 	auto passCBSize = d3dUtil::CalcConstantBufferSize(sizeof PassConstant);
 	auto address = mCurrFrameResource->PassCB->Resource()->GetGPUVirtualAddress();
@@ -198,6 +197,7 @@ void TexBoxApp::UpdateObjectCBs(const GameTimer& gt)
 
 			ObjectConstant objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixIdentity());
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
@@ -255,11 +255,20 @@ void TexBoxApp::UpdateMaterialCB(const GameTimer& gt)
 			m.DiffuseAlbedo = mat->DiffuseAlbedo;
 			m.FresnelR0 = mat->FresnelR0;
 			m.Roughness = mat->Roughness;
+			m.MatTransform = mat->MatTransform;
 
 			materialCB->CopyData(mat->MatCBIndex, m);
 			mat->NumFramesDirty--;
 		}
 	}
+}
+
+void TexBoxApp::UpdateAnimate(const GameTimer& gt)
+{
+	auto mat = mMaterials["woodCrate"].get();
+	XMStoreFloat4x4(&mat->MatTransform, XMMatrixTranspose(XMMatrixRotationZ(gt.TotalTime())));
+
+	mat->NumFramesDirty = gFrameResourcesCount;
 }
 
 void TexBoxApp::LoadTextures()
@@ -271,6 +280,22 @@ void TexBoxApp::LoadTextures()
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
 
 	mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
+
+	auto flareTex = std::make_unique<Texture>();
+	flareTex->Name = "flareTex";
+	ThrowIfFailed(CreateDDSTextureFromFile12(mD3DDevice.Get(),
+		mCommandList.Get(), L"../Textures/flare.dds",
+		flareTex->Resource, flareTex->UploadHeap));
+
+	mTextures[flareTex->Name] = std::move(flareTex);
+
+	auto flarealphaTex = std::make_unique<Texture>();
+	flarealphaTex->Name = "flarealphaTex";
+	ThrowIfFailed(CreateDDSTextureFromFile12(mD3DDevice.Get(),
+		mCommandList.Get(), L"../Textures/flarealpha.dds",
+		flarealphaTex->Resource, flarealphaTex->UploadHeap));
+
+	mTextures[flarealphaTex->Name] = std::move(flarealphaTex);
 }
 
 void TexBoxApp::BuildDescriptorHeaps()
@@ -283,32 +308,43 @@ void TexBoxApp::BuildDescriptorHeaps()
 	desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	desc.NodeMask = 0;
 
-	ThrowIfFailed(mD3DDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mSrvHeap)));
+	ThrowIfFailed(mD3DDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mSrvHeap1)));
 
 	// fill the heap with actual descriptors
-	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap->GetCPUDescriptorHandleForHeapStart());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE hDescriptor(mSrvHeap1->GetCPUDescriptorHandleForHeapStart());
 
-	auto woodCrateTex = mTextures["woodCrateTex"]->Resource;
+	auto flarealphaTex = mTextures["flarealphaTex"]->Resource;
 	D3D12_SHADER_RESOURCE_VIEW_DESC texDesc = {};
 	texDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	texDesc.Format = woodCrateTex->GetDesc().Format;
+	texDesc.Format = flarealphaTex->GetDesc().Format;
 	texDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	texDesc.Texture2D.MostDetailedMip = 0;
-	texDesc.Texture2D.MipLevels = woodCrateTex->GetDesc().MipLevels;
+	texDesc.Texture2D.MipLevels = flarealphaTex->GetDesc().MipLevels;
 	texDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-	mD3DDevice->CreateShaderResourceView(woodCrateTex.Get(), &texDesc, hDescriptor);
+	mD3DDevice->CreateShaderResourceView(flarealphaTex.Get(), &texDesc, hDescriptor);
+
+	ThrowIfFailed(mD3DDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mSrvHeap2)));
+	hDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(mSrvHeap2->GetCPUDescriptorHandleForHeapStart());
+	auto flareTex = mTextures["flareTex"]->Resource;
+	texDesc.Format = flareTex->GetDesc().Format;
+	texDesc.Texture2D.MipLevels = flareTex->GetDesc().MipLevels;
+
+	mD3DDevice->CreateShaderResourceView(flareTex.Get(), &texDesc, hDescriptor);
 }
 
 void TexBoxApp::BuildRootSignature()
 {
-	CD3DX12_ROOT_PARAMETER slotParameters[4];
-	CD3DX12_DESCRIPTOR_RANGE table;
-	table.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_ROOT_PARAMETER slotParameters[5];
+	CD3DX12_DESCRIPTOR_RANGE table1;
+	table1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE table2;
+	table2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 	slotParameters[0].InitAsConstantBufferView(0);
 	slotParameters[1].InitAsConstantBufferView(2);
 	slotParameters[2].InitAsConstantBufferView(1);
-	slotParameters[3].InitAsDescriptorTable(1, &table);
+	slotParameters[3].InitAsDescriptorTable(1, &table1);
+	slotParameters[4].InitAsDescriptorTable(1, &table2);
 
 	auto staticSamplers = BuildStaticSamplers();
 
@@ -317,22 +353,22 @@ void TexBoxApp::BuildRootSignature()
 	desc.NumStaticSamplers = staticSamplers.size();
 	desc.pStaticSamplers = staticSamplers.data();
 	desc.pParameters = slotParameters;
-	desc.NumParameters = 4;
+	desc.NumParameters = 5;
 
 	Microsoft::WRL::ComPtr<ID3DBlob> serializedRootSig;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 	D3D12SerializeRootSignature(&desc, D3D_ROOT_SIGNATURE_VERSION_1, &serializedRootSig, &errorBlob);
-	mD3DDevice->CreateRootSignature(
+	ThrowIfFailed(mD3DDevice->CreateRootSignature(
 		0,
 		serializedRootSig->GetBufferPointer(),
 		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(&mRootSignature));
+		IID_PPV_ARGS(&mRootSignature)));
 }
 
 void TexBoxApp::BuildRenderItems()
 {
 	auto boxRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+	XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f));
 	boxRitem->ObjCBIndex = 0;
 	boxRitem->Geo = mGeometries["shapeGeo"].get();
 	boxRitem->Mat = mMaterials["woodCrate"].get();
@@ -460,9 +496,19 @@ void TexBoxApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 		matAddress += e->Mat->MatCBIndex * matCBSize;
 		mCommandList->SetGraphicsRootConstantBufferView(2, matAddress);
 
-		auto handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvHeap->GetGPUDescriptorHandleForHeapStart());
+		// SRV heap1
+		ID3D12DescriptorHeap* heap[] = { mSrvHeap1.Get() };
+		mCommandList->SetDescriptorHeaps(1, heap);
+		auto handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvHeap1->GetGPUDescriptorHandleForHeapStart());
 		handle.Offset(e->Mat->DiffuseSrvHeapIndex, mDsvDescriptorSize);
 		mCommandList->SetGraphicsRootDescriptorTable(3, handle);
+
+		// SRV heap2
+		heap[0] = mSrvHeap2.Get();
+		mCommandList->SetDescriptorHeaps(1, heap);
+		handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mSrvHeap2->GetGPUDescriptorHandleForHeapStart());
+		handle.Offset(e->Mat->DiffuseSrvHeapIndex, mDsvDescriptorSize);
+		mCommandList->SetGraphicsRootDescriptorTable(4, handle);
 
 		mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
 	}
@@ -470,12 +516,16 @@ void TexBoxApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> TexBoxApp::BuildStaticSamplers()
 {
-	const CD3DX12_STATIC_SAMPLER_DESC pointWrap(
+	CD3DX12_STATIC_SAMPLER_DESC pointWrap(
 		0,									// shaderRegister
-		D3D12_FILTER_MIN_MAG_MIP_POINT,		// filter
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,	// addressU
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,	// addressV
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP);	// addressW
+		D3D12_FILTER_ANISOTROPIC,			// filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,	// addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,	// addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,	// addressW
+		0,
+		16,
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK);
 
 	const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
 		1,									// shaderRegister
@@ -531,6 +581,7 @@ void TexBoxApp::BuildMaterials()
 	woodCrate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	woodCrate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	woodCrate->Roughness = 0.2f;
+	woodCrate->MatTransform = MathHelper::Identity4x4();
 
 	mMaterials["woodCrate"] = std::move(woodCrate);
 }

@@ -113,7 +113,8 @@ namespace d3dUtil
 	static Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
 		std::wstring file,
 		std::string entry,
-		std::string target)
+		std::string target,
+		const D3D_SHADER_MACRO* defines = nullptr)
 	{
 		UINT compileFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)  
@@ -124,7 +125,7 @@ namespace d3dUtil
 
 		auto hr = D3DCompileFromFile(
 			file.c_str(), 
-			nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, 
+			defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 			entry.c_str(), target.c_str(),
 			compileFlags, 0, &blob, &error);
 

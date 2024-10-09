@@ -29,6 +29,6 @@ inline std::wstring AnsiToWString(const std::string& str)
 {                                                                       \
     HRESULT hr__ = (x);                                                 \
     std::wstring wfn = AnsiToWString(__FILE__);                         \
-    if(FAILED(hr__)) { throw DxException(hr__, L"", wfn, __LINE__); } \
+    if(FAILED(hr__)) { throw DxException(hr__, L"", wfn, __LINE__); }   \
 }
 #endif

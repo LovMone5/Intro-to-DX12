@@ -88,7 +88,7 @@ void BlendApp::Draw(const GameTimer& gt)
 
 	mCommandList->ClearRenderTargetView(
 		CurrentBackBufferView(),
-		DirectX::Colors::LightBlue,
+		DirectX::Colors::Black,
 		0, nullptr);
 	mCommandList->ClearDepthStencilView(
 		DepthStencilView(),
@@ -115,6 +115,34 @@ void BlendApp::Draw(const GameTimer& gt)
 	DrawRenderItems(drawAnimate);
 
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
+
+	// depth 1
+	mCommandList->OMSetStencilRef(1);
+	mCommandList->SetPipelineState(mPSOs["depth1"].Get());
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Opaque]);
+	DrawRenderItems(drawAnimate);
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
+
+	// depth 2
+	mCommandList->OMSetStencilRef(2);
+	mCommandList->SetPipelineState(mPSOs["depth2"].Get());
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Opaque]);
+	DrawRenderItems(drawAnimate);
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
+
+	// depth 3
+	mCommandList->OMSetStencilRef(3);
+	mCommandList->SetPipelineState(mPSOs["depth3"].Get());
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Opaque]);
+	DrawRenderItems(drawAnimate);
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
+
+	// depth 4
+	mCommandList->OMSetStencilRef(4);
+	mCommandList->SetPipelineState(mPSOs["depth4"].Get());
+	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Opaque]);
+	DrawRenderItems(drawAnimate);
 	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
 
 	barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -466,9 +494,9 @@ void BlendApp::BuildShadersAndInputLayout()
 		NULL, NULL
 	};
 
-	mShaders["standardVS"] = d3dUtil::CompileShader(L"../../Shaders/Default.hlsl", "VS", "vs_5_0");
-	mShaders["opaquePS"] = d3dUtil::CompileShader(L"../../Shaders/Default.hlsl", "PS", "ps_5_0", defines);
-	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"../../Shaders/Default.hlsl", "PS", "ps_5_0", alphaTestDefines);
+	mShaders["standardVS"] = d3dUtil::CompileShader(L"./Shaders/Default.hlsl", "VS", "vs_5_0");
+	mShaders["opaquePS"] = d3dUtil::CompileShader(L"./Shaders/Default.hlsl", "PS", "ps_5_0", defines);
+	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"./Shaders/Default.hlsl", "PS", "ps_5_0", alphaTestDefines);
 	
 	mInputLayout =
 	{
@@ -646,6 +674,13 @@ void BlendApp::BuildPSO()
 	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);;
 	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	
+	auto& depthStencil = opaquePsoDesc.DepthStencilState;
+	depthStencil.StencilEnable = true;
+	depthStencil.FrontFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+	depthStencil.BackFace.StencilPassOp = D3D12_STENCIL_OP_INCR;
+	depthStencil.DepthEnable = false;
+
 	opaquePsoDesc.SampleMask = UINT_MAX;
 	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	opaquePsoDesc.NumRenderTargets = 1;
@@ -653,11 +688,12 @@ void BlendApp::BuildPSO()
 	opaquePsoDesc.SampleDesc.Count = 1;
 	opaquePsoDesc.SampleDesc.Quality = 0;
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
+	opaquePsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = 0x00;
 	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
 	// PSO for transparent objects
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
-	D3D12_RENDER_TARGET_BLEND_DESC desc = {};
+	D3D12_RENDER_TARGET_BLEND_DESC desc = opaquePsoDesc.BlendState.RenderTarget[0];
 	desc.BlendEnable = true;
 	desc.LogicOpEnable = false;
 	desc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
@@ -667,7 +703,6 @@ void BlendApp::BuildPSO()
 	desc.DestBlendAlpha = D3D12_BLEND_ZERO;
 	desc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	desc.LogicOp = D3D12_LOGIC_OP_NOOP;
-	desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	transparentPsoDesc.BlendState.RenderTarget[0] = desc;
 	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
 
@@ -682,6 +717,29 @@ void BlendApp::BuildPSO()
 	alphaTestedPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
 
+	// PSO for depth complexity level 1
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC depthComplexity1PsoDesc = opaquePsoDesc;
+	depthComplexity1PsoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexity1PsoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	depthComplexity1PsoDesc.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	depthComplexity1PsoDesc.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	depthComplexity1PsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED;
+	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&depthComplexity1PsoDesc, IID_PPV_ARGS(&mPSOs["depth1"])));
+
+	// PSO for depth complexity level 2
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC depthComplexity2PsoDesc = depthComplexity1PsoDesc;
+	depthComplexity2PsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_GREEN;
+	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&depthComplexity2PsoDesc, IID_PPV_ARGS(&mPSOs["depth2"])));
+
+	// PSO for depth complexity level 3
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC depthComplexity3PsoDesc = depthComplexity1PsoDesc;
+	depthComplexity3PsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_BLUE;
+	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&depthComplexity3PsoDesc, IID_PPV_ARGS(&mPSOs["depth3"])));
+
+	// PSO for depth complexity level 4
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC depthComplexity4PsoDesc = depthComplexity1PsoDesc;
+	depthComplexity1PsoDesc.BlendState.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&depthComplexity1PsoDesc, IID_PPV_ARGS(&mPSOs["depth4"])));
 }
 
 void BlendApp::BuildFrameResource()

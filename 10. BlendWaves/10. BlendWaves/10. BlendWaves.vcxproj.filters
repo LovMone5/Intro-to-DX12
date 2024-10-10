@@ -79,10 +79,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\..\Shaders\Default.hlsl">
+    <FxCompile Include="Shaders\Default.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="..\..\Shaders\LightingUtil.hlsl">
+    <FxCompile Include="Shaders\LightingUtil.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

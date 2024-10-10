@@ -93,7 +93,13 @@ VertexOut VS(VertexIn vin)
     return vout;
 }
 
-float4 PS(VertexOut pin) : SV_Target
+struct PixelOut
+{
+    float4 color : SV_Target;
+    float depth : SV_Depth;
+};
+
+PixelOut PS(VertexOut pin) : SV_Target
 {
     pin.NormalW = normalize(pin.NormalW);
     
@@ -101,7 +107,7 @@ float4 PS(VertexOut pin) : SV_Target
     float4 diffuseAlbedo = gDiffuseAlbedo * mixTex;
     
 #ifdef ALPHA_TEST
-    clip(diffuseAlbedo.a - 0.01f);
+    clip(diffuseAlbedo.rgb - float3(0.1f, 0.1f, 0.1f));
 #endif    
     
     Material mat;
@@ -121,5 +127,9 @@ float4 PS(VertexOut pin) : SV_Target
     destColor = lerp(destColor, gFogColor, fogAmount);
 #endif
     
-    return float4(destColor, diffuseAlbedo.a);
+    // return float4(destColor, diffuseAlbedo.a);
+    PixelOut pout;
+    pout.color = float4(1.0, 1.0, 1.0, 1.0);
+    pout.depth = pin.PosH.z;
+    return pout;
 }

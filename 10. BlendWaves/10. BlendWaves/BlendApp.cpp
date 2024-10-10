@@ -32,7 +32,7 @@ bool BlendApp::Initialize()
 	LoadTextures();
 	BuildRootSignature();
 	BuildLandGeometry();
-	BuildBoxGeometry();
+	BuildCylinderGeometry();
 	BuildWavesGeometry();
 	BuildMaterials();
 	BuildRenderItems();
@@ -109,7 +109,10 @@ void BlendApp::Draw(const GameTimer& gt)
 	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Opaque]);
 
 	mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
-	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::AlphaTested]);
+	const auto& items = mRitemLayer[(UINT)RenderLayer::AlphaTested];
+	vector<RenderItem*> drawAnimate;
+	drawAnimate.push_back(items[AnimateIdx]);
+	DrawRenderItems(drawAnimate);
 
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	DrawRenderItems(mRitemLayer[(UINT)RenderLayer::Transparent]);
@@ -160,7 +163,7 @@ void BlendApp::OnMouseMove(WPARAM btnState, int x, int y)
 		float dx = XMConvertToRadians(0.25f * static_cast<float>(x - mLastMousePos.x));
 		float dy = XMConvertToRadians(0.25f * static_cast<float>(y - mLastMousePos.y));
 
-		// update angles based on input to orbit camera around box
+		// update angles based on input to orbit camera around cylinder
 		mTheta += dx;
 		mPhi += dy;
 		mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
@@ -289,6 +292,12 @@ void BlendApp::UpdateAnimate(const GameTimer& gt)
 	XMStoreFloat4x4(&waterMat->MatTransform, mat);
 
 	waterMat->NumFramesDirty = gFrameResourcesCount;
+
+	if (gt.TotalTime() - animateGone >= 1.0 / 60)
+	{
+		AnimateIdx = (AnimateIdx + 1) % 60;
+		animateGone = gt.TotalTime();
+	}
 }
 
 void BlendApp::LoadTextures()
@@ -305,20 +314,23 @@ void BlendApp::LoadTextures()
 		mCommandList.Get(), L"../../Textures/water1.dds",
 		waterTex->Resource, waterTex->UploadHeap));
 
-	auto fenceTex = std::make_unique<Texture>();
-	fenceTex->Name = "fenceTex";
-	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(mD3DDevice.Get(),
-		mCommandList.Get(), L"../../Textures/wirefence.dds",
-		fenceTex->Resource, fenceTex->UploadHeap));
+	for (int i = 1; i <= 60; i++)
+	{
+		auto boltTex = std::make_unique<Texture>();
+		boltTex->Name = "bolt" + ToStringAlign(i, 3) + "Tex";
+		ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(mD3DDevice.Get(),
+			mCommandList.Get(), wstring(wstring(L"../../Textures/BoltAnim/Bolt") + ToWStringAlign(i, 3) + L".dds").c_str(),
+			boltTex->Resource, boltTex->UploadHeap));
+		mTextures[boltTex->Name] = std::move(boltTex);
+	}
 
 	mTextures[grassTex->Name] = std::move(grassTex);
 	mTextures[waterTex->Name] = std::move(waterTex);
-	mTextures[fenceTex->Name] = std::move(fenceTex);
 }
 
 void BlendApp::BuildDescriptorHeaps()
 {
-	UINT numDescriptors = 3;
+	UINT numDescriptors = 62;
 
 	D3D12_DESCRIPTOR_HEAP_DESC desc;
 	desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -333,7 +345,6 @@ void BlendApp::BuildDescriptorHeaps()
 
 	auto grassTex = mTextures["grassTex"]->Resource;
 	auto waterTex = mTextures["waterTex"]->Resource;
-	auto fenceTex = mTextures["fenceTex"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -349,18 +360,23 @@ void BlendApp::BuildDescriptorHeaps()
 	srvDesc.Format = waterTex->GetDesc().Format;
 	mD3DDevice->CreateShaderResourceView(waterTex.Get(), &srvDesc, hDescriptor);
 
-	// next descriptor
-	hDescriptor.Offset(1, mCbvUavDescriptorSize);
+	for (int i = 1; i <= 60; i++)
+	{
+		// next descriptor
+		hDescriptor.Offset(1, mCbvUavDescriptorSize);
 
-	srvDesc.Format = fenceTex->GetDesc().Format;
-	mD3DDevice->CreateShaderResourceView(fenceTex.Get(), &srvDesc, hDescriptor);
+		const string& name = string("bolt") + ToStringAlign(i, 3) + "Tex";
+		auto boltTex = mTextures[name]->Resource;
+		srvDesc.Format = boltTex->GetDesc().Format;
+		mD3DDevice->CreateShaderResourceView(boltTex.Get(), &srvDesc, hDescriptor);
+	}
 }
 
 void BlendApp::BuildRootSignature()
 {
 	CD3DX12_ROOT_PARAMETER slotParameters[4];
 	CD3DX12_DESCRIPTOR_RANGE table1;
-	table1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3, 0);
+	table1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 62, 0);
 	slotParameters[0].InitAsConstantBufferView(0);
 	slotParameters[1].InitAsConstantBufferView(2);
 	slotParameters[2].InitAsConstantBufferView(1);
@@ -415,21 +431,24 @@ void BlendApp::BuildRenderItems()
 
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 
-	auto boxRitem = std::make_unique<RenderItem>();
-	XMStoreFloat4x4(&boxRitem->World, XMMatrixTranslation(3.0f, 2.0f, -9.0f));
-	boxRitem->ObjCBIndex = 2;
-	boxRitem->Mat = mMaterials["wirefence"].get();
-	boxRitem->Geo = mGeometries["boxGeo"].get();
-	boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
-	boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
-	boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
-
-	mRitemLayer[(int)RenderLayer::AlphaTested].push_back(boxRitem.get());
+	for (int i = 1; i <= 60; i++)
+	{
+		string name = string("cylinder") + ToStringAlign(i, 3) + "Geo";
+		auto cylinderRitem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&cylinderRitem->World, XMMatrixTranslation(3.0f, 5.0f, -9.0f));
+		cylinderRitem->ObjCBIndex = 1 + i;
+		cylinderRitem->Mat = mMaterials[string("bolt") + ToStringAlign(i, 3)].get();
+		cylinderRitem->Geo = mGeometries[name].get();
+		cylinderRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		cylinderRitem->IndexCount = cylinderRitem->Geo->DrawArgs["cylinder"].IndexCount;
+		cylinderRitem->StartIndexLocation = cylinderRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
+		cylinderRitem->BaseVertexLocation = cylinderRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
+		mRitemLayer[(int)RenderLayer::AlphaTested].push_back(cylinderRitem.get());
+		mAllRitems.push_back(std::move(cylinderRitem));
+	}
 
 	mAllRitems.push_back(std::move(wavesRitem));
 	mAllRitems.push_back(std::move(gridRitem));
-	mAllRitems.push_back(std::move(boxRitem));
 }
 
 void BlendApp::BuildShadersAndInputLayout()
@@ -509,53 +528,55 @@ void BlendApp::BuildLandGeometry()
 	mGeometries["landGeo"] = std::move(geo);
 }
 
-void BlendApp::BuildBoxGeometry()
+void BlendApp::BuildCylinderGeometry()
 {
-	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData box = geoGen.CreateBox(8.0f, 8.0f, 8.0f, 3);
-
-	std::vector<Vertex> vertices(box.Vertices.size());
-	for (size_t i = 0; i < box.Vertices.size(); ++i)
+	for (int i = 1; i <= 60; i++)
 	{
-		auto& p = box.Vertices[i].Position;
-		vertices[i].Pos = p;
-		vertices[i].Normal = box.Vertices[i].Normal;
-		vertices[i].TexC = box.Vertices[i].TexC;
+		GeometryGenerator geoGen;
+		GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(10.0f, 10.0f, 15.0f, 30, 2, false, false);
+
+		std::vector<Vertex> vertices(cylinder.Vertices.size());
+		for (size_t i = 0; i < cylinder.Vertices.size(); ++i)
+		{
+			vertices[i].Pos = cylinder.Vertices[i].Position;
+			vertices[i].Normal = cylinder.Vertices[i].Normal;
+			vertices[i].TexC = cylinder.Vertices[i].TexC;
+		}
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+
+		std::vector<std::uint16_t> indices = cylinder.GetIndices16();
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		string name = string("cylinder") + ToStringAlign(i, 3) + "Geo";
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = name;
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(mD3DDevice.Get(),
+			mCommandList.Get(), geo->VertexBufferCPU.Get(), geo->VertexUploadBuffer);
+
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(mD3DDevice.Get(),
+			mCommandList.Get(), geo->IndexBufferCPU.Get(), geo->IndexUploadBuffer);
+
+		geo->VertexStride = sizeof(Vertex);
+		geo->VertexBufferSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		geo->DrawArgs["cylinder"] = submesh;
+		mGeometries[name] = std::move(geo);
 	}
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-
-	std::vector<std::uint16_t> indices = box.GetIndices16();
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "boxGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(mD3DDevice.Get(),
-		mCommandList.Get(), geo->VertexBufferCPU.Get(), geo->VertexUploadBuffer);
-
-	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(mD3DDevice.Get(),
-		mCommandList.Get(), geo->IndexBufferCPU.Get(), geo->IndexUploadBuffer);
-
-	geo->VertexStride = sizeof(Vertex);
-	geo->VertexBufferSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["box"] = submesh;
-
-	mGeometries["boxGeo"] = std::move(geo);
 }
 
 void BlendApp::BuildWavesGeometry()
@@ -634,16 +655,6 @@ void BlendApp::BuildPSO()
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
 	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
-	// PSO for alphatested objects
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC alphaTestedPsoDesc = opaquePsoDesc;
-	alphaTestedPsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["alphaTestedPS"]->GetBufferPointer()),
-		mShaders["alphaTestedPS"]->GetBufferSize()
-	};
-	alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
-	
 	// PSO for transparent objects
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC transparentPsoDesc = opaquePsoDesc;
 	D3D12_RENDER_TARGET_BLEND_DESC desc = {};
@@ -659,6 +670,18 @@ void BlendApp::BuildPSO()
 	desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	transparentPsoDesc.BlendState.RenderTarget[0] = desc;
 	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
+
+	// PSO for alphatested objects
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC alphaTestedPsoDesc = transparentPsoDesc;
+	alphaTestedPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["alphaTestedPS"]->GetBufferPointer()),
+		mShaders["alphaTestedPS"]->GetBufferSize()
+	};
+	alphaTestedPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	alphaTestedPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	ThrowIfFailed(mD3DDevice->CreateGraphicsPipelineState(&alphaTestedPsoDesc, IID_PPV_ARGS(&mPSOs["alphaTested"])));
+
 }
 
 void BlendApp::BuildFrameResource()
@@ -772,17 +795,20 @@ void BlendApp::BuildMaterials()
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
-	auto wirefence = std::make_unique<Material>();
-	wirefence->Name = "wirefence";
-	wirefence->MatCBIndex = 2;
-	wirefence->DiffuseSrvHeapIndex = 2;
-	wirefence->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	wirefence->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	wirefence->Roughness = 0.25f;
+	for (int i = 0; i < 60; i++)
+	{
+		auto bolt = std::make_unique<Material>();
+		bolt->Name = string("bolt") + ToStringAlign(i+1, 3);
+		bolt->MatCBIndex = 2 + i;
+		bolt->DiffuseSrvHeapIndex = 2 + i;
+		bolt->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.8f);
+		bolt->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		bolt->Roughness = 0.25f;
+		mMaterials[bolt->Name] = std::move(bolt);
+	}
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
-	mMaterials["wirefence"] = std::move(wirefence);
 }
 
 float BlendApp::GetHillsHeight(float x, float z) const

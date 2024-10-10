@@ -1,8 +1,9 @@
 #pragma once
 #include <wrl.h>
 #include <d3d12.h>
-#include <string>
+#include <sstream>
 #include <unordered_map>
+#include <iomanip>
 #include "d3dx12.h"
 
 namespace d3dUtil 
@@ -137,5 +138,20 @@ namespace d3dUtil
 		}
 
 		return blob;
+	}
+
+
+	inline std::string ToStringAlign(int x, int al) 
+	{
+		std::stringstream ss;
+		ss << std::setw(al) << std::setfill('0') << x;
+		return ss.str();
+	}
+
+	inline std::wstring ToWStringAlign(int x, int al)
+	{
+		std::wstringstream ss;
+		ss << std::setw(al) << std::setfill(L'0') << x;
+		return ss.str();
 	}
 }

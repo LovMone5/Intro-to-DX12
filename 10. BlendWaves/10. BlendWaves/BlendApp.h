@@ -153,7 +153,7 @@ private:
 	void BuildRenderItems();
 	void BuildShadersAndInputLayout();
 	void BuildLandGeometry();
-	void BuildBoxGeometry();
+	void BuildCylinderGeometry();
 	void BuildWavesGeometry();
 	void BuildPSO();
 	void BuildFrameResource();
@@ -195,4 +195,7 @@ private:
 	PassConstant mMainPassCB;
 
 	std::unique_ptr<Waves> mWaves;
+
+	int AnimateIdx = 0;
+	double animateGone = 0.0f;
 };

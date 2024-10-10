@@ -101,7 +101,7 @@ float4 PS(VertexOut pin) : SV_Target
     float4 diffuseAlbedo = gDiffuseAlbedo * mixTex;
     
 #ifdef ALPHA_TEST
-    clip(diffuseAlbedo.a - 0.0001f);
+    clip(diffuseAlbedo.rgb - float3(0.1f, 0.1f, 0.1f));
 #endif    
     
     Material mat;

@@ -82,7 +82,7 @@ struct GeoOut
     uint PrimID : SV_PrimitiveID;
 };
 
-VertexOut VS(VertexIn vin)
+VertexOut VS(VertexIn vin, uint vertID : SV_VertexID)
 {
     VertexOut vout = (VertexOut) 0.0f;
     
@@ -90,7 +90,7 @@ VertexOut VS(VertexIn vin)
     float4 posW = mul(float4(vin.PosL, 1.0f), gWorld);
     vout.CenterW = posW.xyz;
     
-    vout.Size = vin.Size;
+    vout.Size = float2(2 * (vertID + 1), 2 * (vertID + 1));
    
     return vout;
 }
@@ -140,7 +140,7 @@ float4 PS(GeoOut pin) : SV_Target
 {
     pin.NormalW = normalize(pin.NormalW);
     
-    float3 uvw = float3(pin.TexC, pin.PrimID % 3);
+    float3 uvw = float3(pin.TexC, pin.PrimID);
     float4 mixTex = gDiffuseMap0.Sample(gsamAnisotropicWrap, uvw);
     float4 diffuseAlbedo = gDiffuseAlbedo * mixTex;
     

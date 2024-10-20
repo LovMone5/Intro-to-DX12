@@ -697,7 +697,7 @@ void BillboardsApp::BuildTreeGeometry()
 	geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(mD3DDevice.Get(), mCommandList.Get(),
 		geo->IndexBufferCPU.Get(), geo->IndexUploadBuffer);
 
-	geo->Name = "treeSpritesGeo";
+	geo->Name = "treeGeo";
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->VertexStride = sizeof(TreeVertex);
 	geo->VertexBufferSize = vbByteSize;
@@ -816,7 +816,19 @@ void BillboardsApp::DrawRenderItems(const vector<RenderItem*>& ritems)
 		handle.Offset(e->Mat->DiffuseSrvHeapIndex, mCbvUavDescriptorSize);
 		mCommandList->SetGraphicsRootDescriptorTable(3, handle);
 
-		mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
+
+		if (e->Geo->Name == "treeGeo")
+		{
+			mCommandList->DrawInstanced(4, 1, 0, 0);
+			mCommandList->DrawInstanced(4, 1, 4, 0);
+			mCommandList->DrawInstanced(4, 1, 8, 0);
+			mCommandList->DrawInstanced(4, 1, 12, 0);
+			// mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
+		}
+		else 
+		{
+			mCommandList->DrawIndexedInstanced(e->IndexCount, 1, e->StartIndexLocation, e->BaseVertexLocation, 0);
+		}
 	}
 }
 

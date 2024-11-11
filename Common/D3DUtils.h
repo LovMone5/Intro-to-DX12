@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <iomanip>
 #include "d3dx12.h"
+#include "DxException.h"
+#include <d3dcompiler.h>
 
 namespace d3dUtil 
 {

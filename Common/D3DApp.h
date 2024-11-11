@@ -43,6 +43,7 @@ protected:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView();
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView();
+	ID3D12Resource* CurrentBackBuffer();
 
 	HINSTANCE mInstance;
 	static D3DApp* mApp;

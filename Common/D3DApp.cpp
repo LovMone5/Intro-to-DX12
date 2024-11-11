@@ -394,3 +394,8 @@ D3D12_CPU_DESCRIPTOR_HANDLE D3DApp::DepthStencilView()
 	return mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 
+ID3D12Resource* D3DApp::CurrentBackBuffer()
+{
+	return mSwapChainBuffer[mCurrentBackBufferIndex].Get();
+}
+

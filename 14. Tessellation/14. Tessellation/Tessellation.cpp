@@ -299,7 +299,7 @@ void Tessellation::BuildRenderItems()
 	quadRitem->ObjCBIndex = 0;
 	quadRitem->Geo = mGeometries["shapeGeo"].get();
 	quadRitem->Mat = mMaterials["woodCrate"].get();
-	quadRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
+	quadRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST;
 	quadRitem->IndexCount = quadRitem->Geo->DrawArgs["quad"].IndexCount;
 	quadRitem->StartIndexLocation = quadRitem->Geo->DrawArgs["quad"].StartIndexLocation;
 	quadRitem->BaseVertexLocation = quadRitem->Geo->DrawArgs["quad"].BaseVertexLocation;
@@ -324,14 +324,13 @@ void Tessellation::BuildShadersAndInputLayout()
 void Tessellation::BuildGeometry()
 {
 	std::vector<Vertex> vertices = {
-		{XMFLOAT3(-10.0f, 0.0f, +10.0f)},
+		{XMFLOAT3(+0.0f, 0.0f, +10.0f)},
 		{XMFLOAT3(-10.0f, 0.0f, -10.0f)},
-		{XMFLOAT3(+10.0f, 0.0f, +10.0f)},
 		{XMFLOAT3(+10.0f, 0.0f, -10.0f)},
 	};
 
 	std::vector<std::uint16_t> indices = {
-		0, 1, 2, 3
+		0, 1, 2
 	};
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);

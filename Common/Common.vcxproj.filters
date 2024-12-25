@@ -1,0 +1,298 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{54e21390-c86e-4729-97d9-738f4400c216}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Textures">
+      <UniqueIdentifier>{5adeeb40-0df0-4e05-a9e5-4d347b7de524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Textures\BoltAnim">
+      <UniqueIdentifier>{8a4dec28-88b8-45e6-b0f9-1e94e935a266}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D3DApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dx12.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DxException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeometryGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MathHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UploadBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D3DApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DxException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameTimer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeometryGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MathHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Models\car.txt">
+      <Filter>Models</Filter>
+    </Text>
+    <Text Include="..\Models\skull.txt">
+      <Filter>Models</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Textures\bricks3.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\checkboard.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\flare.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\flarealpha.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\grass.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\ice.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\treeArray2.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\water1.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\white1x1.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\WireFence.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\WoodCrate01.dds">
+      <Filter>Textures</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt001.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt002.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt003.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt004.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt005.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt006.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt007.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt008.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt009.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt010.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt011.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt012.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt013.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt014.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt015.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt016.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt017.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt018.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt019.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt020.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt021.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt022.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt023.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt024.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt025.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt026.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt027.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt028.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt029.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt030.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt031.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt032.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt033.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt034.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt035.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt036.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt037.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt038.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt039.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt040.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt041.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt042.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt043.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt044.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt045.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt046.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt047.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt048.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt049.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt050.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt051.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt052.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt053.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt054.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt055.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt056.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt057.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt058.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt059.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+    <Image Include="..\Textures\BoltAnim\Bolt060.dds">
+      <Filter>Textures\BoltAnim</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

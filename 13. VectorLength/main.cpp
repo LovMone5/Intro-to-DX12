@@ -1,4 +1,4 @@
-#include "include/directx/d3dx12.h"
+#include "d3dx12.h"
 #include <fstream>
 #include <wrl.h>
 #include <iostream>
@@ -9,10 +9,6 @@
 #include <random>
 #include <format>
 #include <comdef.h>
-
-#pragma comment(lib, "D3D12.lib")
-#pragma comment(lib, "D3DCompiler.lib")
-#pragma comment(lib, "DXGUID.lib")
 
 // 设备相关
 Microsoft::WRL::ComPtr<ID3D12CommandQueue> g_command_queue;
@@ -157,9 +153,9 @@ void init() {
 
     // 创建根参数
     const UINT param_count = 2;
-    D3D12_ROOT_PARAMETER root_parameters[param_count];
-    root_parameters[0] = {D3D12_ROOT_PARAMETER_TYPE_SRV, {0, 0}, D3D12_SHADER_VISIBILITY_ALL};
-    root_parameters[1] = {D3D12_ROOT_PARAMETER_TYPE_UAV, {0, 0}, D3D12_SHADER_VISIBILITY_ALL};
+    CD3DX12_ROOT_PARAMETER root_parameters[param_count];
+    root_parameters[0].InitAsShaderResourceView(0);
+    root_parameters[1].InitAsUnorderedAccessView(0);
 
     // 创建根签名
     Microsoft::WRL::ComPtr<ID3DBlob> signature, signature_error;

@@ -380,7 +380,7 @@ GeometryGenerator::MeshData GeometryGenerator::CreateGeosphere(float radius, uin
 }
 
 GeometryGenerator::MeshData GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, float height, uint32 sliceCount, uint32 stackCount,
-	bool hasTop = true, bool hasBottom = true)
+	bool hasTop, bool hasBottom)
 {
     MeshData meshData;
 

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{3d1f177f-7176-4335-8484-1018af0697a1}</ProjectGuid>
+    <RootNamespace>Common</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>NotSet</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>D3D12.lib;DXGI.lib;D3DCompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>NotSet</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>D3D12.lib;DXGI.lib;D3DCompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="D3DApp.h" />
+    <ClInclude Include="D3DUtils.h" />
+    <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="DxException.h" />
+    <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="UploadBuffer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="D3DApp.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="DxException.cpp" />
+    <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="MathHelper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Models\car.txt" />
+    <Text Include="..\Models\skull.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Textures\BoltAnim\Bolt001.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt002.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt003.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt004.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt005.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt006.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt007.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt008.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt009.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt010.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt011.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt012.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt013.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt014.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt015.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt016.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt017.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt018.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt019.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt020.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt021.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt022.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt023.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt024.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt025.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt026.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt027.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt028.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt029.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt030.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt031.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt032.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt033.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt034.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt035.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt036.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt037.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt038.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt039.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt040.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt041.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt042.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt043.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt044.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt045.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt046.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt047.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt048.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt049.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt050.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt051.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt052.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt053.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt054.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt055.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt056.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt057.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt058.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt059.dds" />
+    <Image Include="..\Textures\BoltAnim\Bolt060.dds" />
+    <Image Include="..\Textures\bricks3.dds" />
+    <Image Include="..\Textures\checkboard.dds" />
+    <Image Include="..\Textures\flare.dds" />
+    <Image Include="..\Textures\flarealpha.dds" />
+    <Image Include="..\Textures\grass.dds" />
+    <Image Include="..\Textures\ice.dds" />
+    <Image Include="..\Textures\treeArray2.dds" />
+    <Image Include="..\Textures\water1.dds" />
+    <Image Include="..\Textures\white1x1.dds" />
+    <Image Include="..\Textures\WireFence.dds" />
+    <Image Include="..\Textures\WoodCrate01.dds" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

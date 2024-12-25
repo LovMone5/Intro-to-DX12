@@ -31,9 +31,9 @@ public:
 
 protected:
 	virtual void OnResize();
-	virtual void OnMouseDown(WPARAM btnState, int x, int y) = 0;
-	virtual void OnMouseUp(WPARAM btnState, int x, int y) = 0;
-	virtual void OnMouseMove(WPARAM btnState, int x, int y) = 0;
+	virtual void OnMouseDown(WPARAM btnState, int x, int y) {};
+	virtual void OnMouseUp(WPARAM btnState, int x, int y) {};
+	virtual void OnMouseMove(WPARAM btnState, int x, int y) {};
 
 	void CreateCommandObjects();
 	void CreateSwapChain();
